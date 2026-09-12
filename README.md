@@ -1,16 +1,18 @@
-# Osaka AI Usage
+# Jade AI Usage · Linux Extension
 
 A compact GNOME Shell extension showing Claude and Codex **remaining** subscription allowance, available reset times, and slim jade progress bars. A standalone extension with a lightweight background collector. Includes percentage and logo-only display modes, configurable refresh intervals, and an Osaka Jade palette.
 
 **Status: early release for GNOME 50.** Not yet reviewed or listed on extensions.gnome.org.
+
+![Jade AI Usage on GNOME: Claude and Codex allowances with reset times and refresh controls](docs/screenshot.png)
 
 ## Install
 
 Requires GNOME 50, Python 3, systemd user services, Codex CLI and Claude Code with subscription logins. Sign in through the CLIs normally. Claude's adapter currently reads its Linux file-backed OAuth credentials; custom/keyring-only account setups may require another adapter. The default local CLI accounts are monitored, not every account stored in Orca or other apps.
 
 ```bash
-git clone https://github.com/parvezrob/osaka-ai-usage.git
-cd osaka-ai-usage
+git clone https://github.com/parvezrob/Jade-AI-Usage-Linux-Extension.git
+cd Jade-AI-Usage-Linux-Extension
 bash scripts/install.sh
 ```
 
