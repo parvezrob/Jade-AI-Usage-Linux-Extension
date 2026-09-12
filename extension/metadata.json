@@ -1,0 +1,11 @@
+{
+  "uuid": "osaka-ai-usage@local",
+  "name": "Osaka AI Usage",
+  "description": "Claude and Codex remaining allowance, in Osaka Jade.",
+  "shell-version": [
+    "50"
+  ],
+  "version": 2,
+  "settings-schema": "org.gnome.shell.extensions.osaka-ai-usage",
+  "url": "https://github.com/parvezrob/osaka-ai-usage"
+}

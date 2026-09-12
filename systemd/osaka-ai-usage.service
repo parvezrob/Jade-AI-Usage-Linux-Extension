@@ -1,0 +1,9 @@
+[Unit]
+Description=Collect Claude and Codex usage for the Osaka Jade panel
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/lib/osaka-ai-usage/collector.py
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+TimeoutStartSec=75
+UMask=0077
+Nice=10

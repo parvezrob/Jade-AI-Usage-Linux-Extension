@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.osaka-ai-usage" path="/org/gnome/shell/extensions/osaka-ai-usage/">
+    <key name="show-percentages" type="b">
+      <default>true</default><summary>Show provider names and percentages</summary>
+      <description>When disabled, show a single AI logo. Full usage remains in the menu.</description>
+    </key>
+    <key name="refresh-minutes" type="i">
+      <range min="1" max="60"/><default>10</default><summary>Automatic refresh interval in minutes</summary>
+    </key>
+  </schema>
+</schemalist>

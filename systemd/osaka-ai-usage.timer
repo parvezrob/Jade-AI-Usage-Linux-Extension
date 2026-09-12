@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh AI usage every ten minutes
+[Timer]
+OnStartupSec=20
+OnUnitActiveSec=10min
+RandomizedDelaySec=15
+[Install]
+WantedBy=timers.target

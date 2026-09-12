@@ -1,0 +1,28 @@
+#panel .osaka-ai-panel .ai-panel-text { font-family: "JetBrains Mono"; font-size: 9pt; color: #C1C497; }
+.osaka-ai-menu { min-width: 330px; background-color: #111c18; border: 1px solid #509475; border-radius: 10px; padding: 12px; color: #C1C497; font-family: "JetBrains Mono"; font-size: 10pt; }
+.osaka-ai-menu .ai-provider { spacing: 8px; }
+.osaka-ai-menu .ai-heading { font-size: 11pt; font-weight: 700; color: #D6D5BC; }
+.osaka-ai-menu .ai-provider-name { font-weight: 700; font-size: 11pt; color: #C1C497; }
+.osaka-ai-menu .ai-text, .osaka-ai-menu .ai-value { color: #C1C497; }
+.osaka-ai-menu .ai-muted { color: #91A494; font-size: 9pt; }
+.osaka-ai-menu .ai-updated { color: #74877A; font-size: 8pt; }
+.osaka-ai-menu .ai-track { background-color: #32473B; border-radius: 2px; }
+.osaka-ai-menu .ai-fill { background-color: #81B8A8; border-radius: 2px; }
+.osaka-ai-menu .ai-low { background-color: #db9f9c; }
+.osaka-ai-menu .popup-separator-menu-item-separator { background-color: #32473B; height: 1px; }
+
+/* GNOME retains key focus after pointer leave. Only active selection/hover
+ * paints the action; keyboard focus-in sets :selected via PopupBaseMenuItem. */
+.osaka-ai-menu .popup-menu-item.popup-menu-item:focus {
+    background-color: transparent !important;
+    color: #C1C497 !important;
+    box-shadow: none !important;
+}
+.osaka-ai-menu .popup-menu-item.popup-menu-item:selected,
+.osaka-ai-menu .popup-menu-item.popup-menu-item:hover {
+    background-color: #32473B !important;
+    color: #D6D5BC !important;
+    border-radius: 6px;
+}
+
+#panel .osaka-ai-panel .ai-panel-icon { color: #C1C497; icon-size: 16px; }
