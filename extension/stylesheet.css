@@ -1,11 +1,11 @@
 #panel .osaka-ai-panel .ai-panel-text { font-family: "JetBrains Mono"; font-size: 9pt; color: #C1C497; }
-.osaka-ai-menu { min-width: 330px; background-color: #111c18; border: 1px solid #509475; border-radius: 10px; padding: 12px; color: #C1C497; font-family: "JetBrains Mono"; font-size: 10pt; }
-.osaka-ai-menu .ai-provider { spacing: 8px; }
+.osaka-ai-menu { min-width: 300px; background-color: #111c18; border: 1px solid #509475; border-radius: 10px; padding: 8px; color: #C1C497; font-family: "JetBrains Mono"; font-size: 10pt; }
+.osaka-ai-menu .ai-provider { spacing: 12px; }
 .osaka-ai-menu .ai-heading { font-size: 11pt; font-weight: 700; color: #D6D5BC; }
 .osaka-ai-menu .ai-provider-name { font-weight: 700; font-size: 11pt; color: #C1C497; }
 .osaka-ai-menu .ai-text, .osaka-ai-menu .ai-value { color: #C1C497; }
-.osaka-ai-menu .ai-muted { color: #91A494; font-size: 9pt; }
-.osaka-ai-menu .ai-updated { color: #74877A; font-size: 8pt; }
+.osaka-ai-menu .ai-muted { color: #ABB8A5; font-size: 9pt; }
+.osaka-ai-menu .ai-updated { color: #ABB8A5; font-size: 9pt; }
 .osaka-ai-menu .ai-track { background-color: #32473B; border-radius: 2px; }
 .osaka-ai-menu .ai-fill { background-color: #81B8A8; border-radius: 2px; }
 .osaka-ai-menu .ai-low { background-color: #db9f9c; }
@@ -26,3 +26,15 @@
 }
 
 #panel .osaka-ai-panel .ai-panel-icon { color: #C1C497; icon-size: 16px; }
+
+.osaka-ai-menu .popup-menu-item { padding: 8px 12px; }
+.osaka-ai-menu .ai-row { spacing: 12px; }
+.osaka-ai-menu .ai-provider-header { spacing: 8px; }
+.osaka-ai-menu .ai-provider-icon { icon-size: 16px; color: #C1C497; }
+.osaka-ai-menu .ai-quota { spacing: 6px; }
+.osaka-ai-menu .ai-value { min-width: 36px; text-align: right; }
+.osaka-ai-menu .ai-footer { spacing: 8px; }
+.osaka-ai-menu .ai-action { padding: 7px 10px; border-radius: 6px; background-color: #1D3027; color: #C1C497; }
+.osaka-ai-menu .ai-action-content { spacing: 6px; }
+.osaka-ai-menu .ai-action:hover { background-color: #32473B; }
+.osaka-ai-menu .ai-action:focus { box-shadow: inset 0 0 0 1px #81B8A8; }

@@ -83,3 +83,9 @@ Keep network and CLI work outside GNOME Shell, avoid layout changes from allocat
 ## License
 
 GPL-3.0-or-later; see [LICENSE](LICENSE). This is an independent community project, not affiliated with Anthropic, OpenAI, GNOME, or Omarchy.
+
+## Compact menu layout
+
+The popup is centered on its panel indicator, subject to GNOME's screen-edge constraints. Provider headers include logos and update age; reset times share a row with quota labels, and Refresh/Settings share one footer. Panel percentages include their window (`5h` / `7d`) so different periods are explicit. Secondary text uses a brighter muted tone. JavaScript updates require logout/login before the running Shell uses the new layout.
+
+Provider icons: Claude and OpenAI from [Simple Icons v15.0.0](https://github.com/simple-icons/simple-icons/tree/15.0.0), distributed under [CC0-1.0](https://github.com/simple-icons/simple-icons/blob/15.0.0/LICENSE.md). Brand marks belong to their respective owners.

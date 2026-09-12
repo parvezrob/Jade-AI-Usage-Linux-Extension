@@ -9,6 +9,10 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 const names = {claude: 'Claude', codex: 'Codex'};
 function label(text, style='ai-text') { return new St.Label({text, style_class:style, y_align:Clutter.ActorAlign.CENTER}); }
+function period(w) {
+    if(!w)return '';
+    return w.label==='5-hour'?'5h':w.label==='Weekly'?'7d':w.label;
+}
 function duration(seconds) {
     const mins=Math.max(0,Math.ceil(seconds/60));
     if(mins>=1440)return `${Math.floor(mins/1440)}d ${Math.floor(mins%1440/60)}h`;
@@ -20,7 +24,7 @@ export default class Usage extends Extension {
         this._renderKey=null;
         this._loading=false;
         this._cancellable=new Gio.Cancellable();
-        this._button=new PanelMenu.Button(0.0,'AI usage — remaining allowance');
+        this._button=new PanelMenu.Button(0.5,'AI usage — remaining allowance');
         this._button.add_style_class_name('osaka-ai-panel');
         this._bar=label('Claude —  ·  Codex —','ai-panel-text');
         this._settings=this.getSettings();
@@ -61,7 +65,7 @@ export default class Usage extends Extension {
         this._bar.text=Object.entries(names).map(([id,name])=>{
             const p=providers[id],w=p?.windows?.[0];
             const stale=p?.error || !p?.updatedAt || now-p.updatedAt>Math.max(120,this._settings.get_int('refresh-minutes')*120) || (w?.resetsAt && w.resetsAt<=now);
-            return `${name} ${w?`${Math.round(w.remaining)}%${stale?'*':''}`:'—'}`;
+            return `${name}${w?` ${period(w)}`:''} ${w?`${Math.round(w.remaining)}%${stale?'*':''}`:'—'}`;
         }).join('  ·  ');
         this._button.accessible_name=`AI usage — remaining allowance: ${this._bar.text}`;
         const renderKey=JSON.stringify(providers)+':'+Math.floor(now/60);
@@ -70,18 +74,32 @@ export default class Usage extends Extension {
         if(this._button.menu.isOpen && this._renderKey!==null)return;
         this._renderKey=renderKey;
         this._button.menu.removeAll();
-        this._item(label('AGENT USAGE','ai-heading'));
-        this._item(label('Remaining allowance','ai-muted'));
+        const heading=new St.BoxLayout({x_expand:true,style_class:'ai-row'});
+        const headingTitle=label('AGENT USAGE','ai-heading');headingTitle.x_expand=true;
+        heading.add_child(headingTitle);heading.add_child(label('Remaining','ai-muted'));
+        this._item(heading);
         for(const [id,name] of Object.entries(names)) {
             this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
             const box=new St.BoxLayout({vertical:true,x_expand:true,style_class:'ai-provider'});
-            box.add_child(label(name,'ai-provider-name'));
             const p=providers[id];
+            const header=new St.BoxLayout({x_expand:true,style_class:'ai-provider-header'});
+            header.add_child(new St.Icon({gicon:new Gio.FileIcon({file:this.dir.get_child('icons').get_child(`${id==='claude'?'claude':'openai'}-symbolic.svg`)}),style_class:'ai-provider-icon'}));
+            const providerTitle=label(name,'ai-provider-name');providerTitle.x_expand=true;
+            header.add_child(providerTitle);
+            if(p?.updatedAt)header.add_child(label(`${duration(now-p.updatedAt)} ago`,'ai-updated'));
+            box.add_child(header);
             if(!p?.windows?.length)box.add_child(label(p?.error??'Waiting for first update','ai-muted'));
             for(const w of p?.windows??[]) {
                 const row=new St.BoxLayout({x_expand:true,style_class:'ai-row'});
                 const title=label(w.label);title.x_expand=true;
-                row.add_child(title);row.add_child(label(`${Math.round(w.remaining)}%`,'ai-value'));box.add_child(row);
+                row.add_child(title);
+                const reset=w.resetsAt?(w.resetsAt>now?`↻ ${duration(w.resetsAt-now)}`:'Reset due'):'Reset —';
+                const resetLabel=label(reset,'ai-muted');
+                resetLabel.accessible_name=w.resetsAt?(w.resetsAt>now?`Resets in ${duration(w.resetsAt-now)}`:'Reset due; refresh needed'):'Reset time unavailable';
+                row.add_child(resetLabel);
+                row.add_child(label(`${Math.round(w.remaining)}%`,'ai-value'));
+                const quota=new St.BoxLayout({vertical:true,x_expand:true,style_class:'ai-quota'});
+                quota.add_child(row);box.add_child(quota);
                 // Paint the fill without mutating child geometry during allocation.
                 const track=new St.DrawingArea({height:4,x_expand:true,style_class:'ai-track'});
                 track.connect('repaint',area=>{
@@ -94,20 +112,27 @@ export default class Usage extends Extension {
                     cr.rectangle(0,0,width*Math.max(0,Math.min(100,w.remaining))/100,height);cr.fill();
                     cr.$dispose();
                 });
-                box.add_child(track);
-                box.add_child(label(w.resetsAt ? (w.resetsAt>now?`Resets in ${duration(w.resetsAt-now)}`:'Reset due · refresh needed'):'Reset time unavailable','ai-muted'));
+                quota.add_child(track);
             }
             if(p?.error&&p?.windows?.length)box.add_child(label(p.error+' · showing last reading','ai-muted'));
-            if(p?.updatedAt)box.add_child(label(`Updated ${duration(now-p.updatedAt)} ago`,'ai-updated'));
+
             this._item(box);
         }
         this._button.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        const refresh=new PopupMenu.PopupMenuItem('Refresh usage');
-        refresh.connect('activate',()=>{
+        const footer=new St.BoxLayout({x_expand:true,style_class:'ai-footer'});
+        const addAction=(text,iconName,callback)=>{
+            const button=new St.Button({can_focus:true,reactive:true,track_hover:true,x_expand:true,style_class:'ai-action',accessible_name:text});
+            const contents=new St.BoxLayout({style_class:'ai-action-content',x_align:Clutter.ActorAlign.CENTER});
+            contents.add_child(new St.Icon({icon_name:iconName,icon_size:14}));
+            contents.add_child(label(text));button.set_child(contents);
+            button.connect('clicked',()=>{this._button.menu.close();callback();});
+            footer.add_child(button);
+        };
+        addAction('Refresh','view-refresh-symbolic',()=>{
             try {Gio.Subprocess.new(['systemctl','--user','start','--no-block','osaka-ai-usage.service'],Gio.SubprocessFlags.NONE);}catch(e){console.error(e);}
         });
-        this._button.menu.addMenuItem(refresh);
-        this._button.menu.addAction('Settings…',()=>this.openPreferences());
+        addAction('Settings','emblem-system-symbolic',()=>this.openPreferences());
+        this._item(footer);
     }
     disable() {
         this._alive=false;
