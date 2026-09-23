@@ -1,14 +1,14 @@
 # Jade AI Usage · Linux Extension
 
-A compact GNOME Shell extension showing Claude and Codex **remaining** subscription allowance, available reset times, and slim jade progress bars. A standalone extension with a lightweight background collector. Includes percentage and logo-only display modes, configurable refresh intervals, and an Osaka Jade palette.
+A GNOME Shell extension that brings Omarchy's agent-usage panel to GNOME: Claude and Codex subscription limits as percent **used**, reset countdowns, the plan you are on, seven days of token history, and your token mix by model. It uses the Osaka Jade palette.
 
 **Status: early release for GNOME 50.** Not yet reviewed or listed on extensions.gnome.org.
 
-![Jade AI Usage on GNOME: Claude and Codex allowances with reset times and refresh controls](docs/screenshot.png)
+![Jade AI Usage on GNOME: Claude limits, tokens by day and by model](docs/screenshot.png)
 
 ## Install
 
-Requires GNOME 50, Python 3, systemd user services, Codex CLI and Claude Code with subscription logins. Sign in through the CLIs normally. Claude's adapter currently reads its Linux file-backed OAuth credentials; custom/keyring-only account setups may require another adapter. The default local CLI accounts are monitored, not every account stored in Orca or other apps.
+Requires GNOME 50, Python 3, systemd user services, and Codex CLI and/or Claude Code signed in with a subscription. No pip packages are needed.
 
 ```bash
 git clone https://github.com/parvezrob/Jade-AI-Usage-Linux-Extension.git
@@ -16,29 +16,43 @@ cd Jade-AI-Usage-Linux-Extension
 bash scripts/install.sh
 ```
 
-Run as your desktop user, without sudo. On first install or after updating extension JavaScript, **log out and back in** when convenient. The installer records enablement for the next session without forcing logout. Existing installations are backed up. Dependencies use the system Python standard library; no pip packages are needed at runtime.
+Run as your desktop user, without sudo. After installing or updating, **log out and back in** so GNOME Shell loads the new JavaScript. The collector and timer update right away. Existing installations are backed up to `~/.local/state/osaka-jade-backups/`.
 
-## Behavior
+## What it shows
 
-- Top bar: Claude and Codex, each with remaining percentage for its first returned window (normally Claude five-hour, main Codex window). Open the menu to see the corresponding window labels. Asterisk means stale or failed refresh.
-- Dropdown: provider, available quota windows, progress bars, reset countdown, last update, refresh action. Codex shows only its main subscription allowance; Spark and other separate Codex model buckets are excluded.
-- Settings: switch **Show percentages** off for a single AI logo; full usage remains in the dropdown. Open **Settings…** in the menu or run `gnome-extensions prefs osaka-ai-usage@local`.
-- **Refresh interval (minutes)** sets the cache TTL from 1–60 minutes; click **Apply** to update the systemd timer immediately. The default is 10 minutes. The timer override is stored in `~/.config/systemd/user/osaka-ai-usage.timer.d/refresh-interval.conf`.
-- A user timer collects every 10 minutes by default. Network requests and Codex app-server run outside GNOME Shell. Manual refreshes are limited to once per minute.
-- API outages keep the last successful data, marked stale. Missing data shows an em dash, never an invented percentage. Reset expiry asks for refresh rather than assuming a fresh allowance.
-- Uses `account/rateLimits/read` without any model turns or reset-credit redemption. Claude uses its authenticated OAuth usage endpoint, which is an unofficial integration surface and can change.
-- Cache: `~/.cache/osaka-ai-usage/usage.json`. It contains quota numbers/times/errors only, no credentials, account identifiers, prompts, or conversation history. Provider errors are sanitized. Credentials are never copied into the extension or repo.
+- **Top bar:** each provider's fullest limit (the one that will stop your next prompt), e.g. `Claude 5h 3% · Codex 7d 100%`. At 90% or more, the number turns red. `*` means the data is stale or the last probe failed. Turn off **Show percentages** in Settings to show just a logo, which turns red when any limit reaches 90%.
+- **Menu:**
+  - **Header:** the provider logo and name, your plan (`Max 5x`, `Pro`), and how old the numbers are. When sign-in fails, a status card explains how to fix it.
+  - **Claude / Codex tabs:** switch with a click, or press `h`/`l`.
+  - **Limits:** Session, Weekly and per-model windows (such as Fable Weekly), each with percent used, a meter and a reset countdown. Codex also shows any free full resets your account holds; the extension only displays these and never redeems one.
+  - **Tokens by day:** the last seven days, with today in bold and today's prompt and session counts underneath.
+  - **Tokens by model:** your top four models, each with a bar showing its share. Hover over a row for its input, output and cache split.
+  - **Buttons:** Refresh (or press `r`) and Settings.
+
+## How it refreshes
+
+- A systemd user timer runs the collector every 10 minutes by default. You can set 1–60 minutes in Settings and click **Apply**; the change is saved as a timer override in `~/.config/systemd/user/osaka-ai-usage.timer.d/refresh-interval.conf`.
+- **Opening the menu** fetches current limits and reuses recent local token scans. This happens at most once every 30 seconds.
+- **Refresh** rescans everything. The button reads *Refreshing…* until the collector finishes, and the menu stays open.
+- The extension watches the record files, so new numbers appear as soon as they are written, including while the menu is open.
+
+## Data and privacy
+
+The collectors are Omarchy's (`collector/claude.py`, `collector/codex.py`, MIT, vendored with attribution). `collector/update.py` runs them and writes one record per provider to `~/.cache/osaka-ai-usage/records/<id>.json`.
+
+- **Claude limits** come from Anthropic's OAuth usage endpoint, using the token that Claude Code stores in `~/.claude/.credentials.json`. This endpoint is unofficial and can change. The collector never refreshes the token itself: if the menu says *Sign-in expired*, start Claude Code once. Token history comes from your local Claude Code transcripts.
+- **Codex limits and plan** come from `codex app-server` (`account/rateLimits/read`), started read-only, and no model turns are run. Token history comes from local Codex session files.
+- Records contain quota numbers, token counts, model names and plan labels. They never contain credentials, prompts or conversation text. If a Codex probe fails, the last limits stay on screen, marked stale, until their window resets.
 
 ## Verify / troubleshoot
 
 ```bash
 python3 -m unittest discover -s tests
+python3 ~/.local/lib/osaka-ai-usage/update.py --force && ls ~/.cache/osaka-ai-usage/records
 systemctl --user status osaka-ai-usage.timer
 journalctl --user -u osaka-ai-usage.service -n 15
 gnome-extensions info osaka-ai-usage@local
 ```
-
-After login, check both panel and menu, refresh, expired/offline states, then disable/enable the extension. If a login expires, sign in with the corresponding CLI and refresh. No automatic token refresh or account switching is performed by the Claude collector.
 
 ## Uninstall
 
@@ -46,25 +60,11 @@ After login, check both panel and menu, refresh, expired/offline states, then di
 bash scripts/uninstall.sh
 ```
 
-Moves the installed files into a backup and stops collection. It leaves your normal CLI logins and local usage cache alone.
-
-## GNOME 50 and later / publication
-
-GNOME 50 is the initial declared target. At initial implementation, both collectors and the timer passed live tests on Fedora / GNOME 50.4; The latest preferences have passed an isolated GTK/GSettings test; final live panel validation after the latest update is still pending. This is **not yet a reviewed public release**.
-
-Future GNOME major versions must be tested and added to `shell-version` explicitly. No blanket “50+” guarantee or disabled compatibility checks. The extension uses standard GJS ES modules, PanelMenu, PopupMenu, St and Gio; cancels async reads, removes its timer, and destroys its panel actor on disable.
-
-Before public release: test stock GNOME 50 and later target versions, stock theme and OpenBar, scaling, keyboard navigation, enable/disable, lock/unlock, suspend/resume, offline/expired auth, CLI account changes, and missing helpers. Review localization/accessibility and GNOME extension review rules. Finalize project URL and long-term UUID. Package only `extension/` with `gnome-extensions pack`; the separately installed collector is a clearly documented prerequisite. This repository contains only the extension and its collector.
-
-References: [GNOME review guidelines](https://gjs.guide/extensions/review-guidelines/review-guidelines.html), [Codex app-server](https://learn.chatgpt.com/docs/app-server), [Omarchy collector design](https://github.com/omacom/omarchy/tree/quattro/bin). Implementation is original; upstream collectors were inspected as references, not copied.
-
-## Rendering fix (September 13)
-
-Replaced allocation-driven child resizing with a single DrawingArea per progress bar after repeated GNOME allocation warnings were reported. Unchanged snapshots skip rebuilding, and an open menu retains its actors to preserve navigation and avoid layout churn. Live smoothness verification is pending a fresh Shell session.
+This moves the installed files into a backup and stops collection. Your CLI logins and the local usage cache are left alone.
 
 ## Package the extension
 
-The collector and user timer must be installed separately using the installer above. A Shell extension ZIP alone cannot collect usage.
+A Shell extension ZIP alone cannot collect usage: install the collector and user timer with the installer above.
 
 ```bash
 mkdir -p dist
@@ -73,21 +73,15 @@ gnome-extensions pack extension --force --out-dir=dist --extra-source=icons
 
 ## Contributing
 
-Bug reports and pull requests are welcome. Include your GNOME version, distribution, installation method, and a description of the issue. Remove account details and secrets from logs before sharing them. Run the collector tests and validate schemas before submitting:
+Bug reports and pull requests are welcome. Include your GNOME version, distribution and installation method, and remove account details and secrets from any logs you share. Before submitting:
 
 ```bash
 python3 -m unittest discover -s tests
 glib-compile-schemas --strict --dry-run extension/schemas
 ```
 
-Keep network and CLI work outside GNOME Shell, avoid layout changes from allocation callbacks, and preserve keyboard navigation. Future GNOME versions require real testing before being added to metadata.
+Keep network and CLI work outside GNOME Shell (the extension only starts `update.py` and reads its records). Don't resize widgets from allocation callbacks, and keep keyboard navigation working. Future GNOME versions need real testing before they are added to `shell-version`.
 
 ## License
 
-GPL-3.0-or-later; see [LICENSE](LICENSE). This is an independent community project, not affiliated with Anthropic, OpenAI, GNOME, or Omarchy.
-
-## Compact menu layout
-
-The popup is centered on its panel indicator, subject to GNOME's screen-edge constraints. Provider headers include logos and update age; reset times share a row with quota labels, and Refresh/Settings share one footer. Panel percentages include their window (`5h` / `7d`) so different periods are explicit. Secondary text uses a brighter muted tone. JavaScript updates require logout/login before the running Shell uses the new layout.
-
-Provider icons: Claude and OpenAI from [Simple Icons v15.0.0](https://github.com/simple-icons/simple-icons/tree/15.0.0), distributed under [CC0-1.0](https://github.com/simple-icons/simple-icons/blob/15.0.0/LICENSE.md). Brand marks belong to their respective owners.
+GPL-3.0-or-later; see [LICENSE](LICENSE). The Omarchy collectors are MIT and the provider icons are CC0 ([Simple Icons v15.0.0](https://github.com/simple-icons/simple-icons/tree/15.0.0)); see [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md). This is an independent community project, not affiliated with Anthropic, OpenAI, GNOME or Omarchy. Brand marks belong to their respective owners.

@@ -1,11 +1,11 @@
 {
   "uuid": "osaka-ai-usage@local",
-  "name": "Osaka AI Usage",
-  "description": "Claude and Codex remaining allowance, in Osaka Jade.",
+  "name": "Jade AI Usage",
+  "description": "Claude and Codex subscription limits, token history and model mix, in Osaka Jade.",
   "shell-version": [
     "50"
   ],
-  "version": 3,
+  "version": 4,
   "settings-schema": "org.gnome.shell.extensions.osaka-ai-usage",
   "url": "https://github.com/parvezrob/Jade-AI-Usage-Linux-Extension"
 }

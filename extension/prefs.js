@@ -21,13 +21,13 @@ export default class UsagePreferences extends ExtensionPreferences {
         window.add(page);
         const appearance=new Adw.PreferencesGroup({title:'Top bar'});
         page.add(appearance);
-        const percentages=new Adw.SwitchRow({title:'Show percentages',subtitle:'Turn off for a single AI logo. Full details stay in the menu.'});
+        const percentages=new Adw.SwitchRow({title:'Show percentages',subtitle:'Each provider’s fullest limit, as percent used. Turn off for a single AI logo.'});
         appearance.add(percentages);
         settings.bind('show-percentages',percentages,'active',Gio.SettingsBindFlags.DEFAULT);
 
-        const refresh=new Adw.PreferencesGroup({title:'Automatic refresh',description:'Collect usage in the background. Manual refresh has a one-minute cooldown.'});
+        const refresh=new Adw.PreferencesGroup({title:'Automatic refresh',description:'Collect usage in the background. Opening the menu also fetches current limits, and Refresh rescans everything.'});
         page.add(refresh);
-        const interval=new Adw.SpinRow({title:'Refresh interval (minutes)',subtitle:'Cache TTL · default 10 minutes',adjustment:new Gtk.Adjustment({lower:1,upper:60,step_increment:1,page_increment:5,value:settings.get_int('refresh-minutes')}),digits:0});
+        const interval=new Adw.SpinRow({title:'Refresh interval (minutes)',subtitle:'Default 10 minutes',adjustment:new Gtk.Adjustment({lower:1,upper:60,step_increment:1,page_increment:5,value:settings.get_int('refresh-minutes')}),digits:0});
         refresh.add(interval);
         const action=new Adw.ActionRow({title:'Apply refresh interval',subtitle:'Applies to the background collector immediately.'});
         const apply=new Gtk.Button({label:'Apply',valign:Gtk.Align.CENTER});
