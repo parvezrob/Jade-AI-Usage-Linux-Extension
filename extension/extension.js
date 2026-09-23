@@ -140,11 +140,6 @@ function dayName(date) {
     return Number.isNaN(d.getTime()) ? String(date) : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()];
 }
 
-function capitalize(text) {
-    text = String(text ?? '');
-    return text ? text[0].toUpperCase() + text.slice(1) : text;
-}
-
 function escape(text) {
     return GLib.markup_escape_text(String(text), -1);
 }
@@ -197,10 +192,10 @@ function shareRow(share, children) {
         const cr = a.get_context();
         const [w, h] = a.get_surface_size();
         cr.setSourceRGBA(...RGB.fg, 0.05);
-        roundedRect(cr, 0, 0, w, h, 6);
+        cr.rectangle(0, 0, w, h);
         cr.fill();
         cr.setSourceRGBA(...RGB.jade, 0.2);
-        roundedRect(cr, 0, 0, Math.max(12, w * clamp(share, 0, 1)), h, 6);
+        cr.rectangle(0, 0, Math.max(4, w * clamp(share, 0, 1)), h);
         cr.fill();
         cr.$dispose();
     });
@@ -535,8 +530,8 @@ export default class JadeAIUsage extends Extension {
         text.add_child(label(record.name || provider.short, 'ai-hero-title'));
         const status = String(record.usageStatusText || '');
         text.add_child(status
-            ? label(status, 'ai-hero-meta ai-urgent')
-            : label(capitalize(record.tierLabel) || 'Subscription', 'ai-hero-meta'));
+            ? label(status.toUpperCase(), 'ai-hero-meta ai-urgent')
+            : label((record.tierLabel || 'Subscription').toUpperCase(), 'ai-hero-meta'));
         this._hero.add_child(text);
         const age = this._ageMs(record);
         this._hero.add_child(label(Number.isFinite(age) ? formatAge(age) : '', `ai-caption${this._isStale(record) ? ' ai-urgent' : ''}`, {y_align: Clutter.ActorAlign.START}));
@@ -594,7 +589,7 @@ export default class JadeAIUsage extends Extension {
 
         const limits = limitsOf(record);
         if (limits.length) {
-            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group'});
+            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group ai-divided'});
             this._header(section, 'LIMITS');
             for (const limit of limits) {
                 const hot = limit.percent >= ALARM;
@@ -617,7 +612,7 @@ export default class JadeAIUsage extends Extension {
 
         const days = record.recentDays ?? [];
         if (days.length) {
-            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group'});
+            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group ai-divided'});
             this._header(section, 'TOKENS BY DAY');
             const peak = Math.max(1, ...days.map(d => Number(d.messageCount) || 0));
             const today = localDate(nowMs);
@@ -641,7 +636,7 @@ export default class JadeAIUsage extends Extension {
             return {name: modelName(id), split, total: split.reduce((a, v) => a + v, 0)};
         }).sort((a, b) => b.total - a.total).slice(0, 4);
         if (models.length) {
-            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group'});
+            const section = new St.BoxLayout({orientation: VERTICAL, style_class: 'ai-group ai-divided'});
             this._header(section, 'TOKENS BY MODEL');
             const detail = label('', 'ai-caption');
             const describe = m => {

@@ -10,18 +10,22 @@
 #panel .osaka-ai-panel .ai-panel-icon.ai-alarm { color: #db9f9c; }
 
 /* ---------- menu frame ---------- */
+/* Framed like an Omarchy panel: a Hyprland-style window with a 2px accent
+ * border and square corners. The menu box is GNOME's .popup-menu-content,
+ * so these override its rounded, shadowed frame. */
 .osaka-ai-menu {
+    box-shadow: none;
     min-width: 380px;
     max-width: 380px;
     background-color: #111c18;
-    border: 1px solid #509475;
-    border-radius: 12px;
-    padding: 10px 6px;
+    border: 2px solid #509475;
+    border-radius: 0;
+    padding: 12px 6px;
     color: #C1C497;
     font-family: "JetBrains Mono", monospace;
     font-size: 10pt;
 }
-.osaka-ai-menu .popup-menu-item { padding: 6px 12px; }
+.osaka-ai-menu .popup-menu-item { padding: 6px 12px; border-radius: 0; }
 .osaka-ai-menu .ai-content-item { padding-top: 2px; padding-bottom: 8px; }
 
 /* GNOME keeps key focus after the pointer leaves; only buttons show focus. */
@@ -50,29 +54,30 @@
 .osaka-ai-menu .ai-hero { spacing: 12px; }
 .osaka-ai-menu .ai-hero-icon { icon-size: 28px; color: #81B8A8; }
 .osaka-ai-menu .ai-hero-title { font-size: 12pt; font-weight: 700; color: #D6D5BC; }
-.osaka-ai-menu .ai-hero-meta { font-size: 9pt; color: #ABB8A5; }
+.osaka-ai-menu .ai-hero-meta { font-size: 8.5pt; font-weight: 700; letter-spacing: 1px; color: #ABB8A5; }
 .osaka-ai-menu .ai-hero-meta.ai-urgent { color: #db9f9c; }
 
 /* ---------- provider switch ---------- */
 .osaka-ai-menu .ai-switch { spacing: 8px; }
 .osaka-ai-menu .ai-chip {
-    padding: 5px 10px;
-    border-radius: 8px;
-    border: 1px solid #32473B;
+    padding: 7px 10px;
+    border-radius: 0;
+    border: 1px solid rgba(193, 196, 151, 0.4);
     background-color: transparent;
-    color: #ABB8A5;
-    font-size: 9pt;
+    color: #C1C497;
+    font-size: 9.5pt;
 }
-.osaka-ai-menu .ai-chip:hover { background-color: #1D3027; color: #C1C497; }
-.osaka-ai-menu .ai-chip:checked { background-color: #1D3027; border-color: #509475; color: #D6D5BC; font-weight: 700; }
+.osaka-ai-menu .ai-chip:hover { background-color: rgba(193, 196, 151, 0.08); }
+.osaka-ai-menu .ai-chip:checked { background-color: #32473B; border-color: #C1C497; color: #D6D5BC; font-weight: 700; }
 .osaka-ai-menu .ai-chip:focus { box-shadow: inset 0 0 0 1px #81B8A8; }
 
 /* ---------- content ---------- */
-.osaka-ai-menu .ai-content { spacing: 14px; }
+.osaka-ai-menu .ai-content { spacing: 12px; }
+.osaka-ai-menu .ai-divided { border-top: 1px solid #32473B; padding-top: 12px; }
 .osaka-ai-menu .ai-group { spacing: 6px; }
 .osaka-ai-menu .ai-card {
     padding: 8px 10px;
-    border-radius: 8px;
+    border-radius: 0;
     border: 1px solid rgba(219, 159, 156, 0.35);
     background-color: rgba(219, 159, 156, 0.08);
     spacing: 4px;
@@ -93,10 +98,10 @@
 .osaka-ai-menu .ai-model-row:hover .ai-model-value { color: #D6D5BC; }
 
 /* ---------- footer ---------- */
-.osaka-ai-menu .ai-footer-item { border-top: 1px solid #32473B; padding-top: 10px; }
+.osaka-ai-menu .ai-footer-item { border-top: 1px solid #32473B; padding-top: 12px; }
 .osaka-ai-menu .ai-footer { spacing: 8px; }
-.osaka-ai-menu .ai-action { padding: 7px 10px; border-radius: 8px; background-color: #1D3027; color: #C1C497; }
-.osaka-ai-menu .ai-action:hover { background-color: #32473B; color: #D6D5BC; }
+.osaka-ai-menu .ai-action { padding: 7px 10px; border-radius: 0; border: 1px solid rgba(193, 196, 151, 0.4); background-color: transparent; color: #C1C497; }
+.osaka-ai-menu .ai-action:hover { background-color: #32473B; border-color: #C1C497; color: #D6D5BC; }
 .osaka-ai-menu .ai-action:focus { box-shadow: inset 0 0 0 1px #81B8A8; }
 .osaka-ai-menu .ai-action:insensitive { color: #ABB8A5; }
 .osaka-ai-menu .ai-action.ai-failed { color: #db9f9c; }
